@@ -24,9 +24,10 @@ const (
 		'vlib/crypto/rand/crypto_rand_read_test.v',
 	]
 	skip_with_fsanitize_address   = [
-		'vlib/json/json_test.v',
-		'vlib/regex/regex_test.v',
-		'vlib/x/websocket/websocket_test.v',
+		''
+		// 'vlib/json/json_test.v',
+		// 'vlib/regex/regex_test.v',
+		// 'vlib/x/websocket/websocket_test.v',
 	]
 	skip_with_fsanitize_undefined = []string{}
 	skip_with_werror              = [
