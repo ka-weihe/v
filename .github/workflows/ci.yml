@@ -580,9 +580,9 @@ jobs:
           .\v.exe setup-freetype
           .\.github\workflows\windows-install-sqlite.bat
           ## .\.github\workflows\windows-install-sdl.bat
-      - name: Self tests (-fsanitize=address)
+      - name: Self tests (\fsanitize=address)
         run: |
-          .\v.exe -cflags -fsanitize=address test-self
+          .\v.exe -cflags \fsanitize=address test-self
 
   tests-sanitize-address-gcc:
     runs-on: ubuntu-20.04
