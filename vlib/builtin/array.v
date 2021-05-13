@@ -19,7 +19,10 @@ pub mut:
 // extra code for every type.
 // Internal function, used by V (`nums := []int`)
 fn __new_array(mylen int, cap int, elm_size int) array {
-	cap_ := if cap < mylen { mylen } else { cap }
+	mut cap_ := if cap < mylen { mylen } else { cap }
+	if cap_ <= 0 { 
+		cap_ = 2 
+	}
 	arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -30,7 +33,10 @@ fn __new_array(mylen int, cap int, elm_size int) array {
 }
 
 fn __new_array_with_default(mylen int, cap int, elm_size int, val voidptr) array {
-	cap_ := if cap < mylen { mylen } else { cap }
+	mut cap_ := if cap < mylen { mylen } else { cap }
+	if cap_ <= 0 { 
+		cap_ = 2 
+	}
 	mut arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -46,7 +52,10 @@ fn __new_array_with_default(mylen int, cap int, elm_size int, val voidptr) array
 }
 
 fn __new_array_with_array_default(mylen int, cap int, elm_size int, val array) array {
-	cap_ := if cap < mylen { mylen } else { cap }
+	mut cap_ := if cap < mylen { mylen } else { cap }
+	if cap_ <= 0 { 
+		cap_ = 2 
+	}
 	mut arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -62,7 +71,10 @@ fn __new_array_with_array_default(mylen int, cap int, elm_size int, val array) a
 
 // Private function, used by V (`nums := [1, 2, 3]`)
 fn new_array_from_c_array(len int, cap int, elm_size int, c_array voidptr) array {
-	cap_ := if cap < len { len } else { cap }
+	mut cap_ := if cap < len { len } else { cap }
+	if cap_ <= 0 { 
+		cap_ = 2 
+	}
 	arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -90,18 +102,18 @@ fn (mut a array) ensure_cap(required int) {
 	if required <= a.cap {
 		return
 	}
-	mut cap := if a.cap > 0 { a.cap } else { 2 }
-	for required > cap {
-		cap *= 2
+	mut cap := a.cap
+	if cap <= 1024 {
+		cap += cap
+	} else { 
+		cap += cap / 4
 	}
+	if required > cap {
+		cap = required
+	}
+	old_size := a.cap * a.element_size
 	new_size := cap * a.element_size
-	mut new_data := &byte(0)
-	if a.data != voidptr(0) {
-		new_data = unsafe { realloc_data(a.data, a.cap * a.element_size, new_size) }
-	} else {
-		new_data = vcalloc(new_size)
-	}
-	a.data = new_data
+	a.data = unsafe { realloc_data(a.data, old_size, new_size) }
 	a.cap = cap
 }
 
