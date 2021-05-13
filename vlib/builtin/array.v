@@ -20,9 +20,6 @@ pub mut:
 // Internal function, used by V (`nums := []int`)
 fn __new_array(mylen int, cap int, elm_size int) array {
 	mut cap_ := if cap < mylen { mylen } else { cap }
-	if cap_ <= 0 { 
-		cap_ = 2 
-	}
 	arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -34,9 +31,6 @@ fn __new_array(mylen int, cap int, elm_size int) array {
 
 fn __new_array_with_default(mylen int, cap int, elm_size int, val voidptr) array {
 	mut cap_ := if cap < mylen { mylen } else { cap }
-	if cap_ <= 0 { 
-		cap_ = 2 
-	}
 	mut arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -53,9 +47,6 @@ fn __new_array_with_default(mylen int, cap int, elm_size int, val voidptr) array
 
 fn __new_array_with_array_default(mylen int, cap int, elm_size int, val array) array {
 	mut cap_ := if cap < mylen { mylen } else { cap }
-	if cap_ <= 0 { 
-		cap_ = 2 
-	}
 	mut arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -72,9 +63,6 @@ fn __new_array_with_array_default(mylen int, cap int, elm_size int, val array) a
 // Private function, used by V (`nums := [1, 2, 3]`)
 fn new_array_from_c_array(len int, cap int, elm_size int, c_array voidptr) array {
 	mut cap_ := if cap < len { len } else { cap }
-	if cap_ <= 0 { 
-		cap_ = 2 
-	}
 	arr := array{
 		element_size: elm_size
 		data: vcalloc(cap_ * elm_size)
@@ -97,7 +85,9 @@ fn new_array_from_c_array_no_alloc(len int, cap int, elm_size int, c_array voidp
 	return arr
 }
 
-// Private function. Doubles array capacity if needed.
+// Private function. Doubles array capacity until capacity
+// is 1024, after which it grows by 25%. 
+[inline]
 fn (mut a array) ensure_cap(required int) {
 	if required <= a.cap {
 		return
@@ -105,7 +95,7 @@ fn (mut a array) ensure_cap(required int) {
 	mut cap := a.cap
 	if cap <= 1024 {
 		cap += cap
-	} else { 
+	} else {
 		cap += cap / 4
 	}
 	if required > cap {
@@ -437,7 +427,7 @@ fn (mut a array) push(val voidptr) {
 // `val` is array.data and user facing usage is `a << [1,2,3]`
 [unsafe]
 pub fn (mut a3 array) push_many(val voidptr, size int) {
-	if a3.data == val && !isnil(a3.data) {
+	if a3.data == val {
 		// handle `arr << arr`
 		copy := a3.clone()
 		a3.ensure_cap(a3.len + size)
@@ -447,9 +437,7 @@ pub fn (mut a3 array) push_many(val voidptr, size int) {
 		}
 	} else {
 		a3.ensure_cap(a3.len + size)
-		if !isnil(a3.data) && !isnil(val) {
-			unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
-		}
+		unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
 	}
 	a3.len += size
 }
