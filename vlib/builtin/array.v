@@ -421,9 +421,10 @@ fn (mut a array) push(val voidptr) {
 
 // push_many implements the functionality for pushing another array.
 // `val` is array.data and user facing usage is `a << [1,2,3]`
+// TODO: find out why the !isnil checks are necessary
 [unsafe]
 pub fn (mut a3 array) push_many(val voidptr, size int) {
-	if a3.data == val {
+	if a3.data == val && !isnil(a3.data) {
 		// handle `arr << arr`
 		copy := a3.clone()
 		a3.ensure_cap(a3.len + size)
@@ -433,7 +434,9 @@ pub fn (mut a3 array) push_many(val voidptr, size int) {
 		}
 	} else {
 		a3.ensure_cap(a3.len + size)
-		unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
+		if !isnil(a3.data) && !isnil(val) {
+			unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
+		}
 	}
 	a3.len += size
 }
