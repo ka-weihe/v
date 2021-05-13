@@ -428,7 +428,7 @@ fn (mut a array) push(val voidptr) {
 // TODO: find out why the !isnil checks are necessary
 [unsafe]
 pub fn (mut a3 array) push_many(val voidptr, size int) {
-	if a3.data == val && !isnil(a3.data) {
+	if a3.data == val {
 		// handle `arr << arr`
 		copy := a3.clone()
 		a3.ensure_cap(a3.len + size)
@@ -438,9 +438,7 @@ pub fn (mut a3 array) push_many(val voidptr, size int) {
 		}
 	} else {
 		a3.ensure_cap(a3.len + size)
-		if !isnil(a3.data) && !isnil(val) {
-			unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
-		}
+		unsafe { C.memcpy(a3.get_unsafe(a3.len), val, a3.element_size * size) }
 	}
 	a3.len += size
 }
