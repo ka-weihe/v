@@ -86,18 +86,14 @@ fn new_array_from_c_array_no_alloc(len int, cap int, elm_size int, c_array voidp
 }
 
 // Private function. Doubles array capacity until capacity
-// is 1024, after which it grows by 25%.
+// is 1024, after which it grows by roughly 50%.
 [inline]
 fn (mut a array) ensure_cap(required int) {
 	if required <= a.cap {
 		return
 	}
 	mut cap := a.cap
-	if cap <= 1024 {
-		cap += cap
-	} else {
-		cap += cap / 4
-	}
+	cap += cap >> 1
 	if required > cap {
 		cap = required
 	}
