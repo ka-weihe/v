@@ -97,9 +97,13 @@ fn (mut a array) ensure_cap(required int) {
 	if required > cap {
 		cap = required
 	}
-	old_size := a.cap * a.element_size
 	new_size := cap * a.element_size
-	a.data = unsafe { realloc_data(a.data, old_size, new_size) }
+	a.data = if isnil(a.data) {
+		vcalloc(new_size)
+	} else {
+		old_size := a.cap * a.element_size
+		unsafe { realloc_data(a.data, old_size, new_size) }
+	}
 	a.cap = cap
 }
 
