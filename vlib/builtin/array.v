@@ -90,9 +90,9 @@ fn (mut a array) ensure_cap(required int) {
 	if required <= a.cap {
 		return
 	}
-	mut cap := if a.cap > 0 { a.cap } else { 2 }
-	for required > cap {
-		cap *= 2
+	mut cap := a.cap + (a.cap >> 1)
+	if required > cap {
+		cap = required
 	}
 	new_size := cap * a.element_size
 	mut new_data := &byte(0)
